@@ -21,9 +21,17 @@ jobs:
 
       - name: Skip commits created by this agent
         id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           message=$(git log -1 --format=%s)
-          if [ "$message" = "test: cover changes from the pull request" ]; then
+          merged=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" --jq '.merged')
+          if git ls-remote --exit-code --heads origin "${{ github.head_ref }}" >/dev/null; then
+            branch_exists=true
+          else
+            branch_exists=false
+          fi
+          if [ "$message" = "test: cover changes from the pull request" ] || [ "$merged" = "true" ] || [ "$branch_exists" = "false" ]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"

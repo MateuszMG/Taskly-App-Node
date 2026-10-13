@@ -38,7 +38,7 @@ Tests mock Prisma and do not need PostgreSQL. Design-system files, types, barrel
 
 ## Limitations
 
-The agent reads the whole diff, so a large pull request is slower and easier to miss. The loop guard is the commit message, so anyone using that message also skips the workflow. Passing tests can still leave gaps: `TodosPage.tsx` was reported at 45% lines.
+The agent reads the whole diff, so a large pull request is slower and easier to miss. The loop guard is the commit message, so anyone using that message also skips the workflow. A pull request that is already merged, or whose branch was deleted, is skipped instead of failing the check. Passing tests can still leave gaps: `TodosPage.tsx` was reported at 45% lines.
 
 ## Production
 

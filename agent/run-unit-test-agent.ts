@@ -46,6 +46,19 @@ function failed(summary: string): AgentReport {
   };
 }
 
+function closedPullRequest(summary: string): boolean {
+  return summary.includes("pr_resolution_failed") || summary.includes("no longer exists");
+}
+
+function finish(report: AgentReport): void {
+  if (report.status === "failed" && closedPullRequest(report.summary)) {
+    writeReport({ ...report, status: "skipped" });
+    return;
+  }
+  writeReport(report);
+  if (report.status === "failed") process.exitCode = 1;
+}
+
 function parseReport(text: string | undefined): AgentReport | undefined {
   if (!text) return undefined;
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -75,8 +88,7 @@ const headBranch = process.env.PR_HEAD;
 const repository = process.env.GITHUB_REPOSITORY ?? "MateuszMG/Taskly-App-Node";
 
 if (!apiKey || !prNumber || !baseBranch || !headBranch) {
-  writeReport(failed("PR_NUMBER, PR_BASE, PR_HEAD, and CURSOR_API_KEY are required."));
-  process.exitCode = 1;
+  finish(failed("PR_NUMBER, PR_BASE, PR_HEAD, and CURSOR_API_KEY are required."));
 } else {
   const instructions = readFileSync(
     new URL("../.cursor/agents/unit-test-agent.md", import.meta.url),
@@ -113,17 +125,14 @@ if (!apiKey || !prNumber || !baseBranch || !headBranch) {
 
     const report = parseReport(result.result);
     if (result.status === "error") {
-      writeReport(
+      finish(
         report ??
           failed(result.error?.message ?? "The cloud agent run failed before it returned a report."),
       );
-      process.exitCode = 1;
     } else if (!report) {
-      writeReport(failed("The cloud agent finished without a JSON report."));
-      process.exitCode = 1;
+      finish(failed("The cloud agent finished without a JSON report."));
     } else {
-      writeReport(report);
-      if (report.status === "failed") process.exitCode = 1;
+      finish(report);
     }
   } catch (error) {
     const message =
@@ -132,7 +141,6 @@ if (!apiKey || !prNumber || !baseBranch || !headBranch) {
         : error instanceof Error
           ? error.message
           : "The cloud agent could not be started.";
-    writeReport(failed(message));
-    process.exitCode = 1;
+    finish(failed(message));
   }
 }
