@@ -1,0 +1,19 @@
+{
+  "name": "taskly-unit-test-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "tsx run-unit-test-agent.ts"
+  },
+  "dependencies": {
+    "@cursor/sdk": "1.0.37"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
