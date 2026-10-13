@@ -1,0 +1,69 @@
+name: Unit test agent
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  unit-test-agent:
+    if: github.event.pull_request.head.repo.full_name == 'MateuszMG/Taskly-App-Node'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout the pull request head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Skip commits created by this agent
+        id: gate
+        run: |
+          message=$(git log -1 --format=%s)
+          if [ "$message" = "test: cover changes from the pull request" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js
+        if: steps.gate.outputs.skip != 'true'
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+        with:
+          node-version: 22
+
+      - name: Install the agent runner
+        if: steps.gate.outputs.skip != 'true'
+        working-directory: agent
+        run: npm ci
+
+      - name: Run the unit test agent
+        id: agent
+        if: steps.gate.outputs.skip != 'true'
+        continue-on-error: true
+        working-directory: agent
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE: ${{ github.base_ref }}
+          PR_HEAD: ${{ github.head_ref }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: npm start
+
+      - name: Comment on the pull request
+        if: steps.gate.outputs.skip != 'true'
+        working-directory: agent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: node post-comment.mjs
+
+      - name: Fail the check when the agent run failed
+        if: steps.gate.outputs.skip != 'true' && steps.agent.outcome == 'failure'
+        run: exit 1
