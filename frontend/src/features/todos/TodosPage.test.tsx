@@ -5,6 +5,7 @@ import { useNotice } from '../../hooks/useNotice'
 import { useTodoFilters } from './hooks/useTodoFilters'
 import { useTodosBusy } from './hooks/useTodosBusy'
 import { useTodosQuery } from './hooks/useTodosQuery'
+import { useDuplicateTodoMutation } from './hooks/useDuplicateTodoMutation'
 import { useUpdateTodoMutation } from './hooks/useUpdateTodoMutation'
 import { TodosPage } from './TodosPage'
 
@@ -13,6 +14,9 @@ vi.mock('../../hooks/useNotice', () => ({ useNotice: vi.fn() }))
 vi.mock('./hooks/useTodoFilters', () => ({ useTodoFilters: vi.fn() }))
 vi.mock('./hooks/useTodosBusy', () => ({ useTodosBusy: vi.fn() }))
 vi.mock('./hooks/useTodosQuery', () => ({ useTodosQuery: vi.fn() }))
+vi.mock('./hooks/useDuplicateTodoMutation', () => ({
+  useDuplicateTodoMutation: vi.fn(),
+}))
 vi.mock('./hooks/useUpdateTodoMutation', () => ({
   useUpdateTodoMutation: vi.fn(),
 }))
@@ -39,6 +43,11 @@ it('displays a query failure and resets mutation errors before retrying', async 
     error: new Error('The server is unavailable.'),
     refetch,
   } as unknown as ReturnType<typeof useTodosQuery>)
+  vi.mocked(useDuplicateTodoMutation).mockReturnValue({
+    error: null,
+    reset: vi.fn(),
+    mutateAsync: vi.fn(),
+  } as unknown as ReturnType<typeof useDuplicateTodoMutation>)
   vi.mocked(useUpdateTodoMutation).mockReturnValue({
     error: null,
     reset,

@@ -1,4 +1,4 @@
-import { CalendarDays, Pencil, Trash2 } from 'lucide-react'
+import { CalendarDays, Copy, Pencil, Trash2 } from 'lucide-react'
 import type { Todo } from '../types'
 import { formatDate, isOverdue, priorityLabels } from '../utils/todos'
 import {
@@ -16,12 +16,14 @@ export function TodoItem({
   onToggle,
   onEdit,
   onDelete,
+  onDuplicate,
 }: {
   todo: Todo
   busy: boolean
   onToggle: () => void
   onEdit: () => void
   onDelete: () => void
+  onDuplicate: () => void
 }) {
   return (
     <li>
@@ -70,6 +72,14 @@ export function TodoItem({
               aria-label={`Edit: ${todo.title}`}
             >
               <Pencil size={16} aria-hidden="true" />
+            </IconButton>
+            <IconButton
+              variant="ghost"
+              disabled={busy}
+              onClick={onDuplicate}
+              aria-label={`Duplicate: ${todo.title}`}
+            >
+              <Copy size={16} aria-hidden="true" />
             </IconButton>
             <IconButton
               variant="ghost"

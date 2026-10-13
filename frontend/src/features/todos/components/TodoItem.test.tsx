@@ -11,6 +11,7 @@ it('shows an active task and forwards edit requests', async () => {
   const onEdit = vi.fn()
   const onToggle = vi.fn()
   const onDelete = vi.fn()
+  const onDuplicate = vi.fn()
   render(
     <TodoItem
       todo={todoFixture}
@@ -18,6 +19,7 @@ it('shows an active task and forwards edit requests', async () => {
       onEdit={onEdit}
       onToggle={onToggle}
       onDelete={onDelete}
+      onDuplicate={onDuplicate}
     />,
   )
   expect(screen.getByRole('heading', { name: todoFixture.title })).toBeVisible()
