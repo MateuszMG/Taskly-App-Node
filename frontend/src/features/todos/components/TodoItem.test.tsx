@@ -33,3 +33,22 @@ it('shows an active task and forwards edit requests', async () => {
   expect(onToggle).not.toHaveBeenCalled()
   expect(onDelete).not.toHaveBeenCalled()
 })
+
+it('forwards duplicate requests from the copy action', async () => {
+  const user = userEvent.setup()
+  const onDuplicate = vi.fn()
+  render(
+    <TodoItem
+      todo={todoFixture}
+      busy={false}
+      onEdit={vi.fn()}
+      onToggle={vi.fn()}
+      onDelete={vi.fn()}
+      onDuplicate={onDuplicate}
+    />,
+  )
+  await user.click(
+    screen.getByRole('button', { name: `Duplicate: ${todoFixture.title}` }),
+  )
+  expect(onDuplicate).toHaveBeenCalledTimes(1)
+})
