@@ -27,3 +27,11 @@ it('sends only writable task fields on creation', async () => {
     }),
   })
 })
+
+it('posts to the duplicate endpoint for a task id', async () => {
+  vi.mocked(request).mockResolvedValue(todoFixture)
+  await expect(todosApi.duplicate(todoFixture.id)).resolves.toEqual(todoFixture)
+  expect(request).toHaveBeenCalledWith(`/todos/${todoFixture.id}/duplicate`, {
+    method: 'POST',
+  })
+})

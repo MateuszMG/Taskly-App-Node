@@ -18,6 +18,7 @@ it('shows loading feedback before showing an empty list', () => {
     onToggle: vi.fn(),
     onEdit: vi.fn(),
     onDelete: vi.fn(),
+    onDuplicate: vi.fn(),
   }
   const { rerender } = render(<TodoList {...props} loading />)
   expect(screen.getByRole('status')).toHaveTextContent('Loading your tasks…')

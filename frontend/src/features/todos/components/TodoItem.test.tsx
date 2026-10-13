@@ -11,6 +11,7 @@ it('shows an active task and forwards edit requests', async () => {
   const onEdit = vi.fn()
   const onToggle = vi.fn()
   const onDelete = vi.fn()
+  const onDuplicate = vi.fn()
   render(
     <TodoItem
       todo={todoFixture}
@@ -18,6 +19,7 @@ it('shows an active task and forwards edit requests', async () => {
       onEdit={onEdit}
       onToggle={onToggle}
       onDelete={onDelete}
+      onDuplicate={onDuplicate}
     />,
   )
   expect(screen.getByRole('heading', { name: todoFixture.title })).toBeVisible()
@@ -30,4 +32,23 @@ it('shows an active task and forwards edit requests', async () => {
   expect(onEdit).toHaveBeenCalledTimes(1)
   expect(onToggle).not.toHaveBeenCalled()
   expect(onDelete).not.toHaveBeenCalled()
+})
+
+it('forwards duplicate requests from the copy action', async () => {
+  const user = userEvent.setup()
+  const onDuplicate = vi.fn()
+  render(
+    <TodoItem
+      todo={todoFixture}
+      busy={false}
+      onEdit={vi.fn()}
+      onToggle={vi.fn()}
+      onDelete={vi.fn()}
+      onDuplicate={onDuplicate}
+    />,
+  )
+  await user.click(
+    screen.getByRole('button', { name: `Duplicate: ${todoFixture.title}` }),
+  )
+  expect(onDuplicate).toHaveBeenCalledTimes(1)
 })

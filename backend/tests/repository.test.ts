@@ -76,6 +76,33 @@ it('deletes tasks and handles missing tasks', async () => {
   expect(await repository.delete(1)).toBe(false);
 });
 
+it('duplicates an existing task as a new incomplete copy', async () => {
+  const { database, repository } = setup();
+  const copy = { ...record, id: 2, completed: false };
+  vi.spyOn(database.todo, 'findUnique').mockResolvedValue(record);
+  const create = vi.spyOn(database.todo, 'create').mockResolvedValue(copy);
+  expect(await repository.duplicate(1)).toEqual({ ...todo, id: 2 });
+  expect(create).toHaveBeenCalledWith({
+    data: {
+      title: record.title,
+      description: record.description,
+      priority: record.priority,
+      due_date: record.due_date,
+      completed: false,
+      created_at: expect.any(Date),
+      updated_at: expect.any(Date),
+    },
+  });
+});
+
+it('returns null when duplicating a missing task', async () => {
+  const { database, repository } = setup();
+  vi.spyOn(database.todo, 'findUnique').mockResolvedValue(null);
+  const create = vi.spyOn(database.todo, 'create');
+  expect(await repository.duplicate(99)).toBeNull();
+  expect(create).not.toHaveBeenCalled();
+});
+
 it('propagates database errors', async () => {
   const { database, repository } = setup();
   vi.spyOn(database.todo, 'findMany').mockRejectedValue(new Error('Database unavailable'));
