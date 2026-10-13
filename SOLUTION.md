@@ -47,7 +47,9 @@ It committed only those tests as [7ba0e7e](https://github.com/MateuszMG/Taskly-A
 - `cd backend && npm run test:coverage`: pass
 - `cd frontend && npm run test:coverage`: pass
 
-The comment result was **passed**. The next run, [38402385011](https://github.com/MateuszMG/Taskly-App-Node/actions/runs/38402385011), saw that commit message and skipped the agent in about 11 seconds.
+That comment result was **passed**. The next run, [38402385011](https://github.com/MateuszMG/Taskly-App-Node/actions/runs/38402385011), saw that commit message and skipped the agent in about 11 seconds.
+
+Pushing this file replaced the comment. Run [38403386142](https://github.com/MateuszMG/Taskly-App-Node/actions/runs/38403386142) also finished **passed**, skipped `SOLUTION.md` as documentation, and committed nothing because the duplication tests were already on the branch. It used the same four skills and the same four commands, all pass. A later documentation push can refresh that single comment again. The run that created the tests remains [38401494953](https://github.com/MateuszMG/Taskly-App-Node/actions/runs/38401494953).
 
 Checked out locally, `npm test` passed: 42 frontend tests and 68 backend tests.
 
